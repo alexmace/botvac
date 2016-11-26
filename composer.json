@@ -15,5 +15,8 @@
       "src/NeatoBotvacClient.php",
       "src/NeatoBotvacRobot.php"
     ]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.6"
   }
 }
