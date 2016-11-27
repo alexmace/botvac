@@ -14,7 +14,15 @@
       "src/NeatoBotvacApi.php",
       "src/NeatoBotvacClient.php",
       "src/NeatoBotvacRobot.php"
-    ]
+    ],
+    "psr-4": {
+        "AlexMace\\NeatoBotvac\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+        "AlexMace\\NeatoBotvac\\": "tests/"
+    }
   },
   "require-dev": {
     "phpunit/phpunit": "^5.6"
