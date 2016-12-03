@@ -27,24 +27,14 @@ class RobotApiTest extends TestCase
         $history = Middleware::history($this->container);
 
         // Create a mock and queue two responses.
-        $this->mockHandler = new MockHandler([
-            //new Response(200, ['X-Foo' => 'Bar']),
-            /*new Response(202, ['Content-Length' => 0]),
-            new RequestException("Error Communicating with Server", new Request('GET', 'test'))*/
-        ]);
+        $this->mockHandler = new MockHandler([]);
 
         $stack = HandlerStack::create($this->mockHandler);
         // Add the history middleware to the handler stack.
         $stack->push($history);
 
         $client = new Client(['handler' => $stack,]);
-/*
-        // https://nucleo.neatocloud.com/vendors/neato/robots/OPS12416-A0F6FD28DE6D/messages
-        //         Accept:application/vnd.neato.nucleo.v1
-        // Date:Sun, 27 Nov 2016 14:30:27 GMT
-        // Authorization:NEATOAPP 01c966b5f37af4c156da3522fba85c12026cf8fbb6031e56d386d1734f8bd510
-        // X-Agent: ios-7|iPhone 4|0.11.3-142
-        */
+
         $this->robotApi = new RobotApi($client, 'serial', 'secret');
 
     }
@@ -54,27 +44,22 @@ class RobotApiTest extends TestCase
         $this->assertTrue($this->robotApi instanceof RobotApi);
     }
 
+    /**
+     * @depends testConstructor
+     */
     public function testCalculateAuthorizationHeader()
     {
         // Create a datetime that we will use to calculate the authorization
         // header, because it forms part of the calculation, so we need to use
         // a known DT to test.
         $dateTime = new DateTime('2016-12-02 22:17:26', new DateTimeZone('GMT'));
-        $payload = '{"reqId":"1","cmd":"getRobotState"}';
+        $parameters = [
+            "reqId" => "1",
+            "cmd"   => "getRobotState",
+        ];
 
         $expected = 'NEATOAPP 6af05dab5444122f5ee587813782f3982dd2c19fd74e6c2fdb1aa372f1ee82cd';
-        $this->assertEquals($expected, $this->robotApi->calculateAuthorizationHeader($dateTime, $payload));
-// /Users/amace/src/botvac-twitter/prototype.php:48:
-// string(35) "{"reqId":"1","cmd":"getRobotState"}"
-// /Users/amace/src/botvac-twitter/prototype.php:49:
-// string(29) "Wed, 30 Nov 2016 21:48:08 GMT"
-// /Users/amace/src/botvac-twitter/prototype.php:50:
-// string(87) "ops12416-a0f6fd28de6d
-// Wed, 30 Nov 2016 21:48:08 GMT
-// {"reqId":"1","cmd":"getRobotState"}"
-// /Users/amace/src/botvac-twitter/prototype.php:51:
-// string(64) "242ee41137bf5ed3b47939214d5ab52654098ef6e79768b7d0e022f77d3ac82a"
-
+        $this->assertEquals($expected, $this->robotApi->calculateAuthorizationHeader($dateTime, $parameters));
     }
 
     /**
@@ -82,55 +67,114 @@ class RobotApiTest extends TestCase
      */
     public function testGetRobotState()
     {
-        //
+
+        // Create this as an array, then encode it as json an decode it again
+        // so that we get an object back.
+        $body = json_decode(json_encode([
+            'version'   => 1,
+            'reqId'     => "1",
+            'result'    => "ok",
+            'error'     => "ui_alert_invalid",
+            'data'      => [],
+            'state'     => 1,
+            'action'    => 0,
+            'cleaning'  => [
+                'category'      => 2,
+                'mode'          => 2,
+                'modifier'      => 1,
+                'spotWidth'     => 0,
+                'spotHeight'    => 0,
+            ],
+            'details'   => [
+                'isCharging'        => false,
+                'isDocked'          => true,
+                'isScheduleEnabled' => true,
+                'dockHasBeenSeen'   => false,
+                'charge'            => 99
+            ],
+            'availableCommands' => [
+                'start'     => true,
+                'stop'      => false,
+                'pause'     => false,
+                'resume'    => false,
+                'goToBase'  => false,
+            ],
+            'availableServices' => [
+                'houseCleaning'     => "basic-1",
+                'spotCleaning'      => "basic-1",
+                'manualCleaning'    => "basic-1",
+                'easyConnect'       => "basic-1",
+                'schedule'          => "basic-1",
+            ],
+            'meta' => [
+                'modelName' => "BotVacConnected",
+                'firmware'  => "2.0.0",
+            ]
+        ]));
+
+        $responseHeaders = [
+            'server' => "Cowboy",
+            'date'   => "Fri, 02 Dec 2016 22:57:53 GMT",
+            'content-length' => "585",
+            'Access-Control-Allow-Origin' => "*",
+            'Access-Control-Allow-Methods' => "GET,POST,PUT,DELETE,OPTIONS",
+            'Access-Control-Allow-Headers' => "Accept,Date,X-Date,Authorization",
+            'Content-Type' => "application/json",
+        ];
 
         $this->mockHandler->append(
-            new Response(200, ['X-Foo' => 'Bar'])
+            new Response(200, $responseHeaders, json_encode($body))
         );
 
-        $this->robotApi->getRobotState();
+        $this->assertEquals($body, $this->robotApi->getRobotState());
         $this->assertCount(1, $this->container);
+        $request = $this->container[0]['request'];
+        $this->assertEquals('POST', $request->getMethod());
 
-        list($request, $response, $error, $options) = $this->container[0];
-
-        // {"reqId": 1, "cmd": "getRobotState", "params": {}}
-
-        // Headers
-//         Nucleo uses the HTTP header Accept to version the API. The header has the format:
-//
-// application/vnd.neato.nucleo.v1
-// X-Agent: ios-7|iPhone 4|0.11.3-142
-// Authorization: NEATOAPP signature
-// Following is pseudo-grammar that illustrates the construction of the Authorization request header. In the example, \n means the Unicode code point U+000A, commonly called newline.
-//
-// authorization = "NEATOAPP" + " " + signature
-//
-// signature = HMAC_SHA256(robot_secret_key, UTF8_encoded( string_to_sign))
-//
-// string_to_sign = lower(robot_serial) + "\n" +
-//   date_header + "\n" +
-//   body
-
-        // Request URI
-        // Nucleo endpoint is: https://nucleo.neatocloud.com:4443.
-        // POST /vendors/neato/robots/:robot_serial/messages
-
-        // Request Type
-        // Always POST??
-
-        // Request Body
-        // {"reqId": 1, "cmd": "getRobotState", "params": {}}
-
-        // Check response
-        // State or Standard Response
+        // Verify that the request had the required headers
+        $headers = $request->getHeaders();
+        $this->assertArrayHasKey('Date', $headers);
+        $this->assertArrayHasKey('Authorization', $headers);
+        $this->assertArrayHasKey('X-Agent', $headers);
+        $this->assertArraySubset(
+            [
+                'Host'      => ["nucleo.neatocloud.com"],
+                'Accept'    => ['application/vnd.neato.nucleo.v1'],
+            ],
+            $headers
+        );
     }
 
     /**
-     * @depends testConstructor
+     * @depends testGetRobotState
      */
     public function testDismissCurrentAlert()
     {
-        $this->markTestIncomplete();
+        // Create this as an array, then encode it as json an decode it again
+        // so that we get an object back.
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [],
+        ]));
+
+        $responseHeaders = [
+            'server' => "Cowboy",
+            'date'   => "Fri, 02 Dec 2016 22:57:53 GMT",
+            'content-length' => "585",
+            'Access-Control-Allow-Origin' => "*",
+            'Access-Control-Allow-Methods' => "GET,POST,PUT,DELETE,OPTIONS",
+            'Access-Control-Allow-Headers' => "Accept,Date,X-Date,Authorization",
+            'Content-Type' => "application/json",
+        ];
+
+        $this->mockHandler->append(
+            new Response(200, $responseHeaders, json_encode($body))
+        );
+
+        $this->assertEquals($body, $this->robotApi->dismissCurrentAlert());
+
     }
 
     /**
