@@ -8,7 +8,25 @@ use GuzzleHttp\Client;
 
 class RobotApi
 {
+    // Date format required for the date header and part of the hmac.
     const DATE_FORMAT = 'D, d M Y H:i:s e';
+
+    // Cleaning categories
+    const CLEAN_HOUSE = 2;
+    const CLEAN_SPOT = 3;
+
+    // Cleaning modes
+    const MODE_TURBO = 2;
+    const MODE_ECO = 1;
+
+    // Cleaning modifiers
+    const SINGLE_PASS = 1;
+    const DOUBLE_PASS = 2;
+
+    // Navigation modes
+    const NAVIGATION_NORMAL = 1;
+    const NAVIGATION_EXTRA_CARE = 2;
+
     private $client;
     private $serial;
     private $secret;
@@ -28,12 +46,16 @@ class RobotApi
         return 'NEATOAPP ' . $hmac;
     }
 
-    private function makeRequest($cmd)
+    private function makeRequest($cmd, $params = null)
     {
         $parameters = [
             'reqId' => 1,
             'cmd' => $cmd,
         ];
+
+        if (!is_null($params)) {
+            $parameters['params'] = $params;
+        }
         $dateTime = new DateTime();
         $dateTime->setTimezone(new DateTimeZone('GMT'));
         $response = $this->client->request(
@@ -61,5 +83,45 @@ class RobotApi
     public function dismissCurrentAlert()
     {
         return $this->makeRequest('dismissCurrentAlert');
+    }
+
+    public function getRobotInfo()
+    {
+        return $this->makeRequest('getRobotInfo');
+    }
+
+    public function findMe()
+    {
+        // Only available on basic-1 models, check available services to know
+        return $this->makeRequest('findMe');
+    }
+
+    public function getGeneralInfo()
+    {
+        // Only available on basic-1 & advanced 1 models,
+        // check available services to know
+        // Responses are the same, aside from advanced-1 includes a language
+        // value
+        return $this->makeRequest('getGeneralInfo');
+    }
+
+    public function startCleaning(
+        $category,
+        $mode = null,
+        $modifier = null,
+        $navigationMode = null,
+        $spotWidth = null,
+        $spotHeight = null
+    ) {
+        $params = [
+            'category' => $category,
+        ];
+
+        foreach (['mode', 'modifier', 'navigationMode', 'spotWidth', 'spotHeight'] as $param) {
+            if (!is_null($$param)) {
+                $params[$param] = $$param;
+            }
+        }
+        return $this->makeRequest('startCleaning', $params);
     }
 }
