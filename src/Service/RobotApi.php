@@ -124,4 +124,19 @@ class RobotApi
         }
         return $this->makeRequest('startCleaning', $params);
     }
+
+    public function stopCleaning()
+    {
+        return $this->makeRequest('stopCleaning');
+    }
+
+    public function pauseCleaning()
+    {
+        return $this->makeRequest('pauseCleaning');
+    }
+
+    public function resumeCleaning()
+    {
+        return $this->makeRequest('resumeCleaning');
+    }
 }

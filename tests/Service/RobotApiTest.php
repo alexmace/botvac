@@ -56,6 +56,58 @@ class RobotApiTest extends TestCase
         );
     }
 
+    private function getStateResponse(
+        $reqId = 1,
+        $cleaningCategory   = RobotApi::CLEAN_HOUSE,
+        $cleaningMode       = RobotApi::MODE_ECO,
+        $cleaningModifier   = RobotApi::SINGLE_PASS
+    ) {
+        // Create this as an array, then encode it as json an decode it again
+        // so that we get an object back.
+        return json_decode(json_encode([
+            'version'   => 1,
+            'reqId'     => $reqId,
+            'result'    => "ok",
+            'error'     => "ui_alert_invalid",
+            'data'      => [],
+            'state'     => 1,
+            'action'    => 0,
+            'cleaning'  => [
+                'category'      => $cleaningCategory,
+                'mode'          => $cleaningMode,
+                'modifier'      => $cleaningModifier,
+                'spotWidth'     => 0,
+                'spotHeight'    => 0,
+            ],
+            'details'   => [
+                'isCharging'        => false,
+                'isDocked'          => true,
+                'isScheduleEnabled' => true,
+                'dockHasBeenSeen'   => false,
+                'charge'            => 99
+            ],
+            'availableCommands' => [
+                'start'     => true,
+                'stop'      => false,
+                'pause'     => false,
+                'resume'    => false,
+                'goToBase'  => false,
+            ],
+            'availableServices' => [
+                'houseCleaning'     => "basic-1",
+                'spotCleaning'      => "basic-1",
+                'manualCleaning'    => "basic-1",
+                'easyConnect'       => "basic-1",
+                'schedule'          => "basic-1",
+            ],
+            'meta' => [
+                'modelName' => "BotVacConnected",
+                'firmware'  => "2.0.0",
+            ]
+        ]));
+
+    }
+
     public function testConstructor()
     {
         $this->assertTrue($this->robotApi instanceof RobotApi);
@@ -87,47 +139,7 @@ class RobotApiTest extends TestCase
 
         // Create this as an array, then encode it as json an decode it again
         // so that we get an object back.
-        $body = json_decode(json_encode([
-            'version'   => 1,
-            'reqId'     => "1",
-            'result'    => "ok",
-            'error'     => "ui_alert_invalid",
-            'data'      => [],
-            'state'     => 1,
-            'action'    => 0,
-            'cleaning'  => [
-                'category'      => 2,
-                'mode'          => 2,
-                'modifier'      => 1,
-                'spotWidth'     => 0,
-                'spotHeight'    => 0,
-            ],
-            'details'   => [
-                'isCharging'        => false,
-                'isDocked'          => true,
-                'isScheduleEnabled' => true,
-                'dockHasBeenSeen'   => false,
-                'charge'            => 99
-            ],
-            'availableCommands' => [
-                'start'     => true,
-                'stop'      => false,
-                'pause'     => false,
-                'resume'    => false,
-                'goToBase'  => false,
-            ],
-            'availableServices' => [
-                'houseCleaning'     => "basic-1",
-                'spotCleaning'      => "basic-1",
-                'manualCleaning'    => "basic-1",
-                'easyConnect'       => "basic-1",
-                'schedule'          => "basic-1",
-            ],
-            'meta' => [
-                'modelName' => "BotVacConnected",
-                'firmware'  => "2.0.0",
-            ]
-        ]));
+        $body = $this->getStateResponse();
 
         $this->setupResponse(200, $body);
 
@@ -348,47 +360,12 @@ class RobotApiTest extends TestCase
         // spotWidth	integer	Required for spot cleaning. Width of the spot area to be cleaned in cm (100-400).
         // spotHeight	integer	Required for spot cleaning. Height of the spot area to be cleaned in cm (100-400).
 
-        $body = json_decode(json_encode([
-            'version'   => 1,
-            'reqId'     => "1",
-            'result'    => "ok",
-            'error'     => "ui_alert_invalid",
-            'data'      => [],
-            'state'     => 1,
-            'action'    => 0,
-            'cleaning'  => [
-                'category'      => 2,
-                'mode'          => 2,
-                'modifier'      => 1,
-                'spotWidth'     => 0,
-                'spotHeight'    => 0,
-            ],
-            'details'   => [
-                'isCharging'        => false,
-                'isDocked'          => true,
-                'isScheduleEnabled' => true,
-                'dockHasBeenSeen'   => false,
-                'charge'            => 99
-            ],
-            'availableCommands' => [
-                'start'     => true,
-                'stop'      => false,
-                'pause'     => false,
-                'resume'    => false,
-                'goToBase'  => false,
-            ],
-            'availableServices' => [
-                'houseCleaning'     => "basic-1",
-                'spotCleaning'      => "basic-1",
-                'manualCleaning'    => "basic-1",
-                'easyConnect'       => "basic-1",
-                'schedule'          => "basic-1",
-            ],
-            'meta' => [
-                'modelName' => "BotVacConnected",
-                'firmware'  => "2.0.0",
-            ]
-        ]));
+        $body = $body = $this->getStateResponse(
+            "1",
+            RobotApi::CLEAN_HOUSE,
+            RobotApi::MODE_TURBO,
+            RobotApi::SINGLE_PASS
+        );
 
         $expectedRequestBody = [
             'reqId'     => 1,
@@ -417,7 +394,10 @@ class RobotApiTest extends TestCase
         // Only available (according to the docs) on basic-1, minimal-2 and
         // basic-2 models (but it'd be surprising if it is not on all models)
         // check available services to know
-        $this->markTestIncomplete();
+        $body = $this->getStateResponse();
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->stopCleaning());
 
     }
 
@@ -429,7 +409,10 @@ class RobotApiTest extends TestCase
         // Only available (according to the docs) on basic-1, minimal-2 and
         // basic-2 models (but it'd be surprising if it is not on all models)
         // check available services to know
-        $this->markTestIncomplete();
+        $body = $this->getStateResponse();
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->pauseCleaning());
 
     }
 
@@ -441,7 +424,10 @@ class RobotApiTest extends TestCase
         // Only available (according to the docs) on basic-1, minimal-2 and
         // basic-2 models (but it'd be surprising if it is not on all models)
         // check available services to know
-        $this->markTestIncomplete();
+        $body = $this->getStateResponse();
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->resumeCleaning());
 
     }
 
