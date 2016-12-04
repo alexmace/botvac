@@ -439,7 +439,10 @@ class RobotApiTest extends TestCase
         // Only available (according to the docs) on basic-1, minimal-2 and
         // basic-2 models (but it'd be surprising if it is not on all models)
         // check available services to know
-        $this->markTestIncomplete();
+        $body = $this->getStateResponse();
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->sendToBase());
     }
 
     /**
@@ -449,7 +452,76 @@ class RobotApiTest extends TestCase
     {
         // Only available on advanced-1
         // Check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [
+                "houseCleaning" => [
+                    "totalCleanedArea"      => 16.56,
+                    "totalCleaningTime"     => 70,
+                    "averageCleanedArea"    => 7.27,
+                    "averageCleaningTime"   => 7,
+                    "history"               => [
+                        [
+                            "start"                         => "2015-12-12T15:43:12Z",
+                            "end"                           => "2015-12-12T16:43:12Z",
+                            "suspendedCleaningChargingTime" => 0,
+                            "errorTime"                     => 0,
+                            "pauseTime"                     => 0,
+                            "mode"                          => 1,
+                            "area"                          => 6.40,
+                            "launchedFrom"                  => "robot",
+                            "completed"                     => true
+                        ],
+                        [
+                            "start"                         => "2015-12-12T15:43:12Z",
+                            "end"                           => "2015-12-12T16:43:12Z",
+                            "suspendedCleaningChargingTime" => 10,
+                            "errorTime"                     => 0,
+                            "pauseTime"                     => 0,
+                            "mode"                          => 1,
+                            "area"                          => 10.16,
+                            "launchedFrom"                  => "schedule",
+                            "completed"                     => false
+                        ]
+                    ]
+                ],
+                "spotCleaning" => [
+                    "totalCleanedArea"      => 20.54,
+                    "totalCleaningTime"     => 30,
+                    "averageCleanedArea"    => 10.27,
+                    "averageCleaningTime"   => 7,
+                    "history"               => [
+                        [
+                            "start"                         => "2015-12-12T15:43:12Z",
+                            "end"                           => "2015-12-12T16:43:12Z",
+                            "suspendedCleaningChargingTime" => 0,
+                            "errorTime"                     => 0,
+                            "pauseTime"                     => 0,
+                            "mode"                          => 1,
+                            "area"                          => 8.9,
+                            "launchedFrom"                  => "app",
+                            "completed"                     => true
+                        ],
+                        [
+                            "start"                         => "2015-12-12T15:43:12Z",
+                            "end"                           => "2015-12-12T16:43:12Z",
+                            "suspendedCleaningChargingTime" => 10,
+                            "errorTime"                     => 0,
+                            "pauseTime"                     => 0,
+                            "mode"                          => 1,
+                            "area"                          => 12.45,
+                            "launchedFrom"                  => "app",
+                            "completed"                     => false
+                        ]
+                    ]
+                ]
+            ]
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->getLocalStats());
     }
 
     /**
@@ -459,7 +531,30 @@ class RobotApiTest extends TestCase
     {
         // Only available on basic-1 & advanced 1 models,
         // check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [
+                "ip_address"    => "192.168.1.15",
+                "port"          => 8154,
+                "ssid"          => "My Home Network"
+            ]
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->getRobotManualCleaningInfo());
+
+        // Documentation is wrong for this, it says it comes back with a
+        // standard response, but it actually gives a state response.
+
+        // Response also contains
+        //      public $token =>
+        // string(8) "12345678"
+        // public $valid_for_seconds =>
+        // int(300)
+        // which are not documented.
+
     }
 
     /**
@@ -470,7 +565,28 @@ class RobotApiTest extends TestCase
         // Only available on basic-1 & advanced 1 models,
         // check available services to know
         // There are advanced-1 has a lot more preferences that can be got
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [
+                "dirtbinAlertReminderInterval"  => 150,
+                "filterChangeReminderInterval"  => 43200,
+                "brushChangeReminderInterval"   => 172800
+                // advanced-1 has these additional fields
+                // "robotSounds": true,
+                // "dirtbinAlert": true,
+                // "allAlerts": true,
+                // "leds": true,
+                // "buttonClicks": true,
+                // "clock24h": true,
+                // "locale": "en",
+                // "availableLocales": ["en", "it", "de"]
+            ]
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->getPreferences());
 
     }
 
@@ -482,7 +598,43 @@ class RobotApiTest extends TestCase
         // Only available on basic-1 & advanced 1 models,
         // check available services to know
         // There are advanced-1 has a lot more preferences that can be set
-        $this->markTestIncomplete();
+        /*$body = $this->getStateResponse(
+            "1",
+            RobotApi::CLEAN_HOUSE,
+            RobotApi::MODE_TURBO,
+            RobotApi::SINGLE_PASS
+        );*/
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => []
+        ]));
+
+        $expectedRequestBody = [
+            'reqId'     => 1,
+            'cmd'       => 'setPreferences',
+            'params'    => [
+                "dirtbinAlertReminderInterval"  => 150,
+                "filterChangeReminderInterval"  => 43200,
+                "brushChangeReminderInterval"   => 172800
+            ]
+        ];
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals(
+            $body,
+            $this->robotApi->setPreferences(
+                150,
+                43200,
+                172800
+            )
+        );
+
+        $this->assertCount(1, $this->container);
+        $request = $this->container[0]['request'];
+        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals($expectedRequestBody, json_decode($request->getBody()->getContents(), true));
 
     }
 

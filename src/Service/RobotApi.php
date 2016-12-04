@@ -139,4 +139,50 @@ class RobotApi
     {
         return $this->makeRequest('resumeCleaning');
     }
+
+    public function sendToBase()
+    {
+        return $this->makeRequest('resumeCleaning');
+    }
+
+    public function getLocalStats()
+    {
+        return $this->makeRequest('getLocalStats');
+    }
+
+    public function getRobotManualCleaningInfo()
+    {
+        return $this->makeRequest('getRobotManualCleaningInfo');
+    }
+
+    public function getPreferences()
+    {
+        return $this->makeRequest('getPreferences');
+    }
+
+    public function setPreferences(
+        $dirtbinAlertReminderInterval,
+        $filterChangeReminderInterval,
+        $brushChangeReminderInterval,
+        $robotSounds = null,
+        $dirtbinAlert = null,
+        $allAlerts = null,
+        $leds = null,
+        $buttonClicks = null,
+        $clock24h = null,
+        $locale = null
+    ) {
+        $params = [
+            'dirtbinAlertReminderInterval'  => $dirtbinAlertReminderInterval,
+            'filterChangeReminderInterval'  => $filterChangeReminderInterval,
+            'brushChangeReminderInterval'   => $brushChangeReminderInterval,
+        ];
+
+        foreach (['robotSounds', 'dirtbinAlert', 'allAlerts', 'leds', 'buttonClicks', 'clock24h', 'locale'] as $param) {
+            if (!is_null($$param)) {
+                $params[$param] = $$param;
+            }
+        }
+        return $this->makeRequest('setPreferences', $params);
+    }
 }
