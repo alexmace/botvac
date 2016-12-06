@@ -656,7 +656,30 @@ class RobotApiTest extends TestCase
     {
         // Only available on basic-1 & minimal-1 models,
         // check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [
+                "type"      => RobotApi::SCHEDULE_BASIC, // This is set to 1 as per the docs, but my BotvacConnected returns 0, which is undocumented
+                "enabled"   => true,
+                "events"    => [
+                    [
+                        "mode"      => RobotApi::MODE_ECO, // Only on basic-1
+                        "day"       => RobotApi::DAY_MONDAY,
+                        "startTime" => "14:45"
+                    ],
+                    [
+                        "mode"      => RobotApi::MODE_ECO,
+                        "day"       => RobotApi::DAY_WEDNESDAY,
+                        "startTime" => "09:05"
+                    ]
+                ]
+            ]
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->getSchedule());
 
     }
 

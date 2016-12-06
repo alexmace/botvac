@@ -29,7 +29,7 @@ class NeatoBotvacRobot {
 		$params = array("category" => 2, "mode" => ($eco ? 1 : 2), "modifier" => 2);
 		return $this->doAction("startCleaning", $params);
 	}
-	
+
 	public function startEcoCleaning() {
 		$params = array("category" => 2, "mode" => 1, "modifier" => 2);
 		return $this->doAction("startCleaning", $params);
@@ -38,7 +38,7 @@ class NeatoBotvacRobot {
 	public function pauseCleaning() {
 		return $this->doAction("pauseCleaning");
 	}
-	
+
 	public function resumeCleaning() {
 		return $this->doAction("resumeCleaning");
 	}
@@ -82,6 +82,7 @@ class NeatoBotvacRobot {
 	    	"Date: ".$date,
 	    	"Authorization: NEATOAPP ".$hmac
 			);
+			var_dump($headers);
 
 			$result = NeatoBotvacApi::request($this->baseUrl.$this->serial."/messages", $payload, "POST", $headers);
 		}

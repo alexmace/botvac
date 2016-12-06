@@ -27,6 +27,18 @@ class RobotApi
     const NAVIGATION_NORMAL = 1;
     const NAVIGATION_EXTRA_CARE = 2;
 
+    // Schedule types - there is only 1 at the moment.
+    const SCHEDULE_BASIC = 1;
+
+    // Days of the week
+    const DAY_SUNDAY = 0;
+    const DAY_MONDAY = 1;
+    const DAY_TUESDAY = 2;
+    const DAY_WEDNESDAY = 3;
+    const DAY_THURSDAY = 4;
+    const DAY_FRIDAY = 5;
+    const DAY_SATURDAY = 6;
+
     private $client;
     private $serial;
     private $secret;
@@ -58,16 +70,17 @@ class RobotApi
         }
         $dateTime = new DateTime();
         $dateTime->setTimezone(new DateTimeZone('GMT'));
+        $headers = [
+            'Accept'        => 'application/vnd.neato.nucleo.v1',
+            'Date'          => $dateTime->format(self::DATE_FORMAT),
+            'Authorization' => $this->calculateAuthorizationHeader($dateTime, $parameters),
+            'X-Agent'       => 'AlexMace|RobotApi|0.0.1',
+        ];
         $response = $this->client->request(
             'POST',
             'https://nucleo.neatocloud.com/vendors/neato/robots/' . $this->serial . '/messages',
             [
-                'headers' => [
-                    'Accept'        => 'application/vnd.neato.nucleo.v1',
-                    'Date'          => $dateTime->format(self::DATE_FORMAT),
-                    'Authorization' => $this->calculateAuthorizationHeader($dateTime, $parameters),
-                    'X-Agent'       => 'AlexMace|RobotApi|0.0.1',
-                ],
+                'headers' => $headers,
                 'verify' => false, // :(
                 'json' => $parameters
             ]
@@ -184,5 +197,10 @@ class RobotApi
             }
         }
         return $this->makeRequest('setPreferences', $params);
+    }
+
+    public function getSchedule()
+    {
+        return $this->makeRequest('getSchedule');
     }
 }
