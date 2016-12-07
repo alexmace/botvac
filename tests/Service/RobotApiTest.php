@@ -645,8 +645,57 @@ class RobotApiTest extends TestCase
     {
         // Only available on basic-1 & minimal-1 models,
         // check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => []   // Documentation says this will be present and empty, but actually it is missing.
+                                // Actual response also contains 'error'
+        ]));
 
+        $expectedRequestBody = [
+            'reqId'     => 1,
+            'cmd'       => 'setSchedule',
+            'params'    => [
+                "type"      => RobotApi::SCHEDULE_BASIC,
+                "events"    => [
+                    [
+                        "mode"      => RobotApi::MODE_ECO,
+                        "day"       => RobotApi::DAY_MONDAY,
+                        "startTime" => "14:45"
+                    ],
+                    [
+                        "mode"      => RobotApi::MODE_ECO,
+                        "day"       => RobotApi::DAY_WEDNESDAY,
+                        "startTime" => "09:05"
+                    ]
+                ]
+            ]
+        ];
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals(
+            $body,
+            $this->robotApi->setSchedule(
+                [
+                    [
+                        "mode"      => RobotApi::MODE_ECO,
+                        "day"       => RobotApi::DAY_MONDAY,
+                        "startTime" => "14:45"
+                    ],
+                    [
+                        "mode"      => RobotApi::MODE_ECO,
+                        "day"       => RobotApi::DAY_WEDNESDAY,
+                        "startTime" => "09:05"
+                    ]
+                ]
+            )
+        );
+
+        $this->assertCount(1, $this->container);
+        $request = $this->container[0]['request'];
+        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals($expectedRequestBody, json_decode($request->getBody()->getContents(), true));
     }
 
     /**

@@ -199,6 +199,16 @@ class RobotApi
         return $this->makeRequest('setPreferences', $params);
     }
 
+    public function setSchedule(array $events)
+    {
+        $params = [
+            'type'      => self::SCHEDULE_BASIC,
+            'events'    => $events,
+        ];
+
+        return $this->makeRequest('setSchedule', $params);
+    }
+
     public function getSchedule()
     {
         return $this->makeRequest('getSchedule');
