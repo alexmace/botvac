@@ -213,4 +213,14 @@ class RobotApi
     {
         return $this->makeRequest('getSchedule');
     }
+
+    public function enableSchedule()
+    {
+        return $this->makeRequest('enableSchedule');
+    }
+
+    public function disableSchedule()
+    {
+        return $this->makeRequest('disableSchedule');
+    }
 }

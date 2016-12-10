@@ -739,7 +739,15 @@ class RobotApiTest extends TestCase
     {
         // Only available on basic-1 & minimal-1 models,
         // check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [],
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->enableSchedule());
 
     }
 
@@ -750,7 +758,15 @@ class RobotApiTest extends TestCase
     {
         // Only available on basic-1 & minimal-1 models,
         // check available services to know
-        $this->markTestIncomplete();
+        $body = json_decode(json_encode([
+            "version"   => 1,
+            "reqId"     => "1",
+            "result"    => "ok",
+            "data"      => [],
+        ]));
+
+        $this->setupResponse(200, $body);
+        $this->assertEquals($body, $this->robotApi->disableSchedule());
 
     }
 
