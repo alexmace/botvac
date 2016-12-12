@@ -149,18 +149,64 @@ class RobotTest extends TestCase
         $this->assertEquals(Robot::ACTION_INVALID, $robot->getAction());
     }
 
-    // public function testStartCleaning()
-    // {
-    //     $this->markTestIncomplete();
-    //     'availableCommands' => [
-    //         'start'     => true,
-    //         'stop'      => false,
-    //         'pause'     => false,
-    //         'resume'    => false,
-    //         'goToBase'  => false,
-    //     ],
-    //
-    // }
+    public function testEcoCleanHouse()
+    {
+        // Setup that startCleaning is called, with category set to 2 (for house
+        // cleaning), mode set to 1 for Eco and no other arguments.
+        // startCleaning should return a state object, and the state updated in
+        // the robot.
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('startCleaning')
+                     ->with(
+                        $this->equalTo(RobotApi::CLEAN_HOUSE),
+                        $this->equalTo(RobotApi::MODE_ECO)
+                     )
+                     ->willReturn($this->getStateResponse());
+
+        $robot = new Robot($mockRobotApi);
+        $robot->ecoCleanHouse();
+    }
+
+    /**
+     * Should rationalise this with the above test - perhaps via data provider?
+     */
+    public function testCleanHouse()
+    {
+        // Setup that startCleaning is called, with category set to 2 (for house
+        // cleaning), mode set to 1 for Eco and no other arguments.
+        // startCleaning should return a state object, and the state updated in
+        // the robot.
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('startCleaning')
+                     ->with(
+                        $this->equalTo(RobotApi::CLEAN_HOUSE),
+                        $this->equalTo(RobotApi::MODE_TURBO)
+                     )
+                     ->willReturn($this->getStateResponse());
+
+        $robot = new Robot($mockRobotApi);
+        $robot->cleanHouse();
+    }
     //
     // public function testStopCleaning()
     // {
@@ -197,16 +243,140 @@ class RobotTest extends TestCase
     //         'goToBase'  => false,
     //     ],
     // }
-    //
-    // public function testCleanSpot()
-    // {
-    //     $this->markTestIncomplete();
-    // }
-    //
-    // public function testDeepCleanSpot()
-    // {
-    //     $this->markTestIncomplete();
-    // }
+
+
+    /**
+     * Should rationalise this with the above clean house tests - perhaps via data provider?
+     */
+    public function testCleanSpot()
+    {
+        // Setup that startCleaning is called, with category set to 2 (for house
+        // cleaning), mode set to 1 for Eco and no other arguments.
+        // startCleaning should return a state object, and the state updated in
+        // the robot.
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('startCleaning')
+                     ->with(
+                        $this->equalTo(RobotApi::CLEAN_SPOT),
+                        $this->equalTo(RobotApi::MODE_TURBO)
+                     )
+                     ->willReturn($this->getStateResponse());
+
+        $robot = new Robot($mockRobotApi);
+        $robot->cleanSpot();
+    }
+
+
+    /**
+     * Should rationalise this with the above clean house tests - perhaps via data provider?
+     */
+    public function testDeepCleanSpot()
+    {
+        // Setup that startCleaning is called, with category set to 2 (for house
+        // cleaning), mode set to 1 for Eco and no other arguments.
+        // startCleaning should return a state object, and the state updated in
+        // the robot.
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('startCleaning')
+                     ->with(
+                        $this->equalTo(RobotApi::CLEAN_SPOT),
+                        $this->equalTo(RobotApi::MODE_TURBO),
+                        $this->equalTo(RobotApi::DOUBLE_PASS)
+                     )
+                     ->willReturn($this->getStateResponse());
+
+        $robot = new Robot($mockRobotApi);
+        $robot->deepCleanSpot();
+    }
+
+
+
+    /**
+     * Should rationalise this with the above clean house tests - perhaps via data provider?
+     */
+    public function testEcoCleanSpot()
+    {
+
+            // Setup that startCleaning is called, with category set to 2 (for house
+            // cleaning), mode set to 1 for Eco and no other arguments.
+            // startCleaning should return a state object, and the state updated in
+            // the robot.
+            $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+            // A get robot state call should be made so that the Robot class can
+            // know what the robot is currently doing, and what services are
+            // available.
+            $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+                $this->getStateResponse()
+            );
+            $mockRobotApi->expects($this->once())
+                         ->method('startCleaning')
+                         ->with(
+                            $this->equalTo(RobotApi::CLEAN_SPOT),
+                            $this->equalTo(RobotApi::MODE_ECO)
+                         )
+                         ->willReturn($this->getStateResponse());
+
+            $robot = new Robot($mockRobotApi);
+            $robot->ecoCleanSpot();
+    }
+
+
+
+    /**
+     * Should rationalise this with the above clean house tests - perhaps via data provider?
+     */
+    public function testEcoDeepCleanSpot()
+    {
+
+            // Setup that startCleaning is called, with category set to 2 (for house
+            // cleaning), mode set to 1 for Eco and no other arguments.
+            // startCleaning should return a state object, and the state updated in
+            // the robot.
+            $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+
+            // A get robot state call should be made so that the Robot class can
+            // know what the robot is currently doing, and what services are
+            // available.
+            $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+                $this->getStateResponse()
+            );
+            $mockRobotApi->expects($this->once())
+                         ->method('startCleaning')
+                         ->with(
+                            $this->equalTo(RobotApi::CLEAN_SPOT),
+                            $this->equalTo(RobotApi::MODE_ECO),
+                            $this->equalTo(RobotApi::DOUBLE_PASS)
+                         )
+                         ->willReturn($this->getStateResponse());
+
+            $robot = new Robot($mockRobotApi);
+            $robot->ecoDeepCleanSpot();
+    }
     //
     // public function testEnableSchedule()
     // {
