@@ -108,6 +108,77 @@ class Robot
         return $this->action;
     }
 
+    public function ecoCleanHouse()
+    {
+        // Eco mode is only supported on basic-1 and basic-2
+        if (!in_array($this->apiVersion, ['basic-1', 'basic-2'])) {
+            throw new Exception('Eco cleaning mode is not available on this robot.');
+        }
+
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_HOUSE,
+            Service\RobotApi::MODE_ECO,
+            Service\RobotApi::SINGLE_PASS
+        );
+
+    }
+
+    public function cleanHouse()
+    {
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_HOUSE,
+            Service\RobotApi::MODE_TURBO,
+            Service\RobotApi::SINGLE_PASS
+        );
+    }
+
+    public function cleanSpot()
+    {
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_SPOT,
+            Service\RobotApi::MODE_TURBO,
+            Service\RobotApi::SINGLE_PASS
+        );
+    }
+
+    public function deepCleanSpot()
+    {
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_SPOT,
+            Service\RobotApi::MODE_TURBO,
+            Service\RobotApi::DOUBLE_PASS
+        );
+    }
+
+    public function ecoCleanSpot()
+    {
+        // Eco mode is only supported on basic-1 and basic-2
+        if (!in_array($this->apiVersion, ['basic-1', 'basic-2'])) {
+            throw new Exception('Eco cleaning mode is not available on this robot.');
+        }
+
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_SPOT,
+            Service\RobotApi::MODE_ECO,
+            Service\RobotApi::SINGLE_PASS
+        );
+    }
+
+    public function ecoDeepCleanSpot()
+    {
+        // Eco mode is only supported on basic-1 and basic-2
+        if (!in_array($this->apiVersion, ['basic-1', 'basic-2'])) {
+            throw new Exception('Eco cleaning mode is not available on this robot.');
+        }
+        
+        $this->startCleaning(
+            Service\RobotApi::CLEAN_SPOT,
+            Service\RobotApi::MODE_ECO,
+            Service\RobotApi::DOUBLE_PASS
+        );
+    }
+
+
     private function processStateResponse($stateResponse)
     {
         if ( ! ($stateResponse instanceof stdClass)
@@ -150,5 +221,55 @@ class Robot
         $this->state = $stateResponse->state;
         $this->action = $stateResponse->action;
 
+    }
+
+    private function startCleaning($category, $mode = null, $passes = null)
+    {
+        // If the house cleaning service is not available, then throw an
+        // exception
+        if ($category == Service\RobotApi::CLEAN_HOUSE
+            && !$this->isServiceAvailable(self::SERVICE_HOUSE_CLEANING)
+        ) {
+            throw new Exception('House cleaning is not available on this robot.');
+        }
+
+        // If the spot cleaning service is not available, then throw an
+        // exception
+        if ($category == Service\RobotApi::CLEAN_HOUSE
+            && !$this->isServiceAvailable(self::SERVICE_SPOT_CLEANING)
+        ) {
+            throw new Exception('Spot cleaning is not available on this robot.');
+        }
+
+        if ($this->apiVersion == 'basic-1') {
+            $this->api->startCleaning(
+                $category,
+                $mode,
+                $passes
+            );
+        } else if ($this->apiVersion == 'micro-2') {
+            $this->api->startCleaning(
+                $category,
+                null,
+                null,
+                Service\RobotApi::NAVIGATION_NORMAL
+            );
+        } else if ($this->apiVersion == 'minimal-2') {
+            $this->api->startCleaning(
+                $category,
+                null,
+                $passes,
+                Service\RobotApi::NAVIGATION_NORMAL
+            );
+        } else if ($this->apiVersion == 'basic-2') {
+            $this->api->startCleaning(
+                $category,
+                $mode,
+                $passes,
+                Service\RobotApi::NAVIGATION_NORMAL
+            );
+        } else {
+            throw new Exception('Unknown robot type');
+        }
     }
 }
