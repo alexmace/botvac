@@ -207,43 +207,42 @@ class RobotTest extends TestCase
         $robot = new Robot($mockRobotApi);
         $robot->cleanHouse();
     }
-    //
-    // public function testStopCleaning()
-    // {
-    //     $this->markTestIncomplete();
-    //     'availableCommands' => [
-    //         'start'     => true,
-    //         'stop'      => false,
-    //         'pause'     => false,
-    //         'resume'    => false,
-    //         'goToBase'  => false,
-    //     ],
-    // }
-    //
-    // public function testPauseCleaning()
-    // {
-    //     $this->markTestIncomplete();
-    //     'availableCommands' => [
-    //         'start'     => true,
-    //         'stop'      => false,
-    //         'pause'     => false,
-    //         'resume'    => false,
-    //         'goToBase'  => false,
-    //     ],
-    // }
-    //
-    // public function testReturnToBase()
-    // {
-    //     $this->markTestIncomplete();
-    //     'availableCommands' => [
-    //         'start'     => true,
-    //         'stop'      => false,
-    //         'pause'     => false,
-    //         'resume'    => false,
-    //         'goToBase'  => false,
-    //     ],
-    // }
 
+    /**
+     * @depends testConstructor
+     */
+    public function testStopCleaning(Robot $robot)
+    {
+        // By default, the test data we're using say that stopping is not
+        // available, so we should expect an exception.
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Robot is not able to stop cleaning at this time.");
+        $robot->stopCleaning();
+    }
+
+    /**
+     * @depends testConstructor
+     */
+    public function testPauseCleaning(Robot $robot)
+    {
+        // By default, the test data we're using say that pausing is not
+        // available, so we should expect an exception.
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Robot is not able to pause cleaning at this time.");
+        $robot->pauseCleaning();
+    }
+
+    /**
+     * @depends testConstructor
+     */
+    public function testReturnToBase(Robot $robot)
+    {
+        // By default, the test data we're using say that returning to base is
+        // not available, so we should expect an exception.
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Cannot return to base because base has not been seen.");
+        $robot->returnToBase();
+    }
 
     /**
      * Should rationalise this with the above clean house tests - perhaps via data provider?
@@ -377,15 +376,59 @@ class RobotTest extends TestCase
             $robot = new Robot($mockRobotApi);
             $robot->ecoDeepCleanSpot();
     }
-    //
-    // public function testEnableSchedule()
-    // {
-    //     $this->markTestIncomplete();
-    // }
-    //
-    // public function testDisableSchedule()
-    // {
-    //     $this->markTestIncomplete();
-    // }
+
+    public function testEnableSchedule()
+    {
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('enableSchedule')
+                     ->willReturn(json_decode(json_encode([
+                        "version"   => 1,
+                        "reqId"     => "77",
+                        "result"    => "ok",
+                        "data"      => [],
+                    ])));
+
+        $robot = new Robot($mockRobotApi);
+        // By default, the test data we're using say that returning to base is
+        // not available, so we should expect an exception.
+        $robot->enableSchedule();
+    }
+
+    public function testDisableSchedule()
+    {
+        $mockRobotApi = $this->getMockBuilder(RobotApi::class)
+                             ->disableOriginalConstructor()
+                             ->getMock();
+
+        // A get robot state call should be made so that the Robot class can
+        // know what the robot is currently doing, and what services are
+        // available.
+        $mockRobotApi->expects($this->once())->method('getRobotState')->willReturn(
+            $this->getStateResponse()
+        );
+        $mockRobotApi->expects($this->once())
+                     ->method('disableSchedule')
+                     ->willReturn(json_decode(json_encode([
+                        "version"   => 1,
+                        "reqId"     => "77",
+                        "result"    => "ok",
+                        "data"      => [],
+                    ])));
+
+        $robot = new Robot($mockRobotApi);
+        // By default, the test data we're using say that returning to base is
+        // not available, so we should expect an exception.
+        $robot->disableSchedule();
+    }
 
 }
