@@ -1,8 +1,7 @@
 <pre>
 <?php
 
-require("../NeatoBotvacClient.php");
-require("../NeatoBotvacRobot.php");
+require __DIR__ . '/../vendor/autoload.php';
 
 $email = "user@email.com";
 $password = "secretpassword";
@@ -18,11 +17,13 @@ $robots = array();
 $auth = $client->authorize($email, $password);
 
 if($auth !== false) {
-	echo "Token: ".$auth."<br />";
+	echo "Token: ", $auth, "\n";
 	$result = $client->getRobots();
 
 	if($result !== false) {
 		foreach ($result["robots"] as $robot) {
+			echo "Serial: ", $robot['serial'], "\n";
+			echo "Secret Key: ", $robot['secret_key'], "\n";
 			$robots[] = new NeatoBotvacRobot($robot["serial"], $robot["secret_key"]);
 		}
 	}
