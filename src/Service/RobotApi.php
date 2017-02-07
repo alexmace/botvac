@@ -155,7 +155,7 @@ class RobotApi
 
     public function sendToBase()
     {
-        return $this->makeRequest('resumeCleaning');
+        return $this->makeRequest('sendToBase');
     }
 
     public function getLocalStats()

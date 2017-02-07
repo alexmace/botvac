@@ -326,7 +326,7 @@ class Robot
 
     }
 
-    private function startCleaning($category, $mode = null, $passes = null)
+    private function startCleaning($category, $mode = null, $passes = null, $spotWidth = 200, $spotHeight = 200)
     {
         // If the house cleaning service is not available, then throw an
         // exception
@@ -355,28 +355,37 @@ class Robot
             $stateResponse = $this->api->startCleaning(
                 $category,
                 $mode,
-                $passes
+                $passes,
+                null,
+                $spotWidth,
+                $spotHeight
             );
         } else if ($this->apiVersion == 'micro-2') {
             $stateResponse = $this->api->startCleaning(
                 $category,
                 null,
                 null,
-                Service\RobotApi::NAVIGATION_NORMAL
+                Service\RobotApi::NAVIGATION_NORMAL,
+                $spotWidth,
+                $spotHeight
             );
         } else if ($this->apiVersion == 'minimal-2') {
             $stateResponse = $this->api->startCleaning(
                 $category,
                 null,
                 $passes,
-                Service\RobotApi::NAVIGATION_NORMAL
+                Service\RobotApi::NAVIGATION_NORMAL,
+                $spotWidth,
+                $spotHeight
             );
         } else if ($this->apiVersion == 'basic-2') {
             $stateResponse = $this->api->startCleaning(
                 $category,
                 $mode,
                 $passes,
-                Service\RobotApi::NAVIGATION_NORMAL
+                Service\RobotApi::NAVIGATION_NORMAL,
+                $spotWidth,
+                $spotHeight
             );
         } else {
             throw new Exception('Unknown robot type');
