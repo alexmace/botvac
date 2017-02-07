@@ -17,10 +17,6 @@ class Robot
     const SERVICE_SPOT_CLEANING     = 'spotCleaning';
     const SERVICE_MAPS              = 'maps';
 
-    // Don't know what this one does, because it is not documented in Neato's
-    // documentation.
-    const SERVICE_EASY_CONNECT      = 'easyConnect';
-
     const COMMAND_START         = 'start';
     const COMMAND_STOP          = 'stop';
     const COMMAND_PAUSE         = 'pause';
@@ -63,7 +59,6 @@ class Robot
         self::SERVICE_PREFERENCES       => false,
         self::SERVICE_SCHEDULE          => false,
         self::SERVICE_SPOT_CLEANING     => false,
-        self::SERVICE_EASY_CONNECT      => false,
         self::SERVICE_MAPS              => false,
     ];
 
