@@ -15,6 +15,7 @@ class Robot
     const SERVICE_PREFERENCES       = 'preferences';
     const SERVICE_SCHEDULE          = 'schedule';
     const SERVICE_SPOT_CLEANING     = 'spotCleaning';
+    const SERVICE_MAPS              = 'maps';
 
     // Don't know what this one does, because it is not documented in Neato's
     // documentation.
@@ -63,6 +64,7 @@ class Robot
         self::SERVICE_SCHEDULE          => false,
         self::SERVICE_SPOT_CLEANING     => false,
         self::SERVICE_EASY_CONNECT      => false,
+        self::SERVICE_MAPS              => false,
     ];
 
     private $commandsAvailable = [

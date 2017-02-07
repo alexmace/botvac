@@ -51,6 +51,7 @@ class RobotTest extends TestCase
                 'manualCleaning'    => "basic-1",
                 'easyConnect'       => "basic-1",
                 'schedule'          => "basic-1",
+                'maps'              => "basic-1",
             ],
             'meta' => [
                 'modelName' => "BotVacConnected",
